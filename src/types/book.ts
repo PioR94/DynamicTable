@@ -6,7 +6,7 @@ export interface Book {
   href: string;
   epoch: string;
   genres: string;
-  epub: string;
-  mobi: string;
-  pdf: string;
+  // epub: string;
+  // mobi: string;
+  // pdf: string;
 }
