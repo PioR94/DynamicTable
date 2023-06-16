@@ -12,7 +12,8 @@ export const getBooksData = async (): Promise<Book[]> => {
       href: book.href,
       epoch: book.epoch,
       genres: book.genres,
-      // epub:
+      img: book.simple_thumb,
+      //  epub:
       // mobi: string;
       // pdf: string;
     }));
