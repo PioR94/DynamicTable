@@ -109,6 +109,9 @@ export const Table = () => {
         dataKey="id"
         header={header}
         tableStyle={{ minWidth: '60rem' }}
+        paginator
+        rows={5}
+        rowsPerPageOptions={[5, 10, 25, 50]}
       >
         <Column expander={allowExpansion} style={{ width: '5rem' }} />
         <Column field="name" header="Author" sortable />
