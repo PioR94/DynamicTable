@@ -1,33 +1,49 @@
 'use client';
-import { getBooksData } from '../../utils/api';
+import { getAuthorsData, getBooksData } from '../../utils/api';
 import React, { useState, useEffect, useRef } from 'react';
-import { DataTable, DataTableExpandedRows, DataTableRowEvent, DataTableValueArray } from 'primereact/datatable';
+import { DataTable, DataTableDataSelectableEvent, DataTableExpandedRows, DataTableRowEvent, DataTableValueArray } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Rating } from 'primereact/rating';
 import { Button } from 'primereact/button';
 import { Tag } from 'primereact/tag';
 import { Book } from '../../types/book';
+import { Author } from '../../types/author';
+import { BreadCrumb } from 'primereact/breadcrumb';
 
 export const Table = () => {
-  const [books, setBooks] = useState<Book[]>([]);
+  const [authors, setAuthors] = useState<Author[]>([]);
   const [expandedRows, setExpandedRows] = useState<DataTableExpandedRows | DataTableValueArray | undefined>(undefined);
+  const [selectedProduct, setSelectedProduct] = useState<Author | null>(null);
+
+  // useEffect(() => {
+  //   const getBooks = async () => {
+  //     try {
+  //       const booksData = await getBooksData('adam-mickiewicz');
+  //       setBooks(booksData);
+  //     } catch (error) {
+  //       console.log(error);
+  //     }
+  //   };
+  //   getBooks();
+  // }, []);
 
   useEffect(() => {
-    const getBooks = async () => {
+    const getAuthors = async () => {
       try {
-        const booksData = await getBooksData();
-        setBooks(booksData);
+        const authorsData = await getAuthorsData();
+        setAuthors(authorsData);
+        console.log(authors);
       } catch (error) {
         console.log(error);
       }
     };
-    getBooks();
+    getAuthors();
   }, []);
 
   const expandAll = () => {
     let _expandedRows: DataTableExpandedRows = {};
 
-    books.forEach((p) => (_expandedRows[`${p.id}`] = true));
+    authors.forEach((p) => (_expandedRows[`${p.id}`] = true));
 
     setExpandedRows(_expandedRows);
   };
@@ -41,7 +57,7 @@ export const Table = () => {
   };
 
   const imageBodyTemplate = (rowData: Book) => {
-    return <img src={rowData.img} alt={rowData.img} width="64px" className="shadow-4" />;
+    return <img src={rowData.simple_thumb} alt={rowData.simple_thumb} width="64px" className="shadow-4" />;
   };
 
   // const priceBodyTemplate = (rowData: Product) => {
@@ -56,21 +72,21 @@ export const Table = () => {
   //   return <Tag value={rowData.inventoryStatus} severity={getProductSeverity(rowData)}></Tag>;
   // };
 
-  const allowExpansion = (rowData: Book) => {
-    return rowData.author!.length > 0;
+  const allowExpansion = (rowData: Author) => {
+    return rowData.name!.length > 0;
   };
 
-  const rowExpansionTemplate = (data: Book) => {
+  const rowExpansionTemplate = (data: Author) => {
     return (
       <div className="p-3">
-        <h5>Orders for {data.title}</h5>
-        <DataTable value={books}>
-          <Column field="id" header="Id" sortable></Column>
-          <Column field="customer" header="Customer" sortable></Column>
-          <Column field="date" header="Date" sortable></Column>
-          <Column field="amount" header="Amount" body={'amountBodyTemplate'} sortable></Column>
-          <Column field="status" header="Status" body={'statusOrderBodyTemplate'} sortable></Column>
-          <Column headerStyle={{ width: '4rem' }} body={searchBodyTemplate}></Column>
+        <h5> Creativity</h5>
+        <DataTable value={data.books} selectionMode="single">
+          <Column field="title" header="Title" />
+          <Column header="Image" body={imageBodyTemplate} />
+          <Column field="kind" header="Kind" />
+          <Column field="epoch" header="Epoch" />
+          <Column field="amount" header="Amount" body={'amountBodyTemplate'} />
+          <Column field="status" header="Status" body={'statusOrderBodyTemplate'} />
         </DataTable>
       </div>
     );
@@ -86,11 +102,9 @@ export const Table = () => {
   return (
     <div className="card">
       <DataTable
-        value={books}
+        value={authors}
         expandedRows={expandedRows}
         onRowToggle={(e) => setExpandedRows(e.data)}
-        // onRowExpand={onRowExpand}
-        // onRowCollapse={onRowCollapse}
         rowExpansionTemplate={rowExpansionTemplate}
         dataKey="id"
         header={header}
@@ -98,11 +112,11 @@ export const Table = () => {
       >
         <Column expander={allowExpansion} style={{ width: '5rem' }} />
         <Column field="name" header="Author" sortable />
-        <Column header="Image" body={imageBodyTemplate} />
-        <Column field="price" header="Price" sortable body={''} />
-        <Column field="category" header="Category" sortable />
-        <Column field="rating" header="Reviews" sortable body={'ratingBodyTemplate'} />
-        <Column field="inventoryStatus" header="Status" sortable body={'statusBodyTemplate'} />
+
+        {/*<Column field="price" header="Price" sortable body={''} />*/}
+        {/*<Column field="category" header="Category" sortable />*/}
+        {/*<Column field="rating" header="Reviews" sortable body={'ratingBodyTemplate'} />*/}
+        {/*<Column field="inventoryStatus" header="Status" sortable body={'statusBodyTemplate'} />*/}
       </DataTable>
     </div>
   );

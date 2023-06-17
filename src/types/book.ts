@@ -1,12 +1,12 @@
 export interface Book {
-  id: any;
+  full_sort_key: string;
   kind: string;
   title: string;
   author: string;
   href: string;
   epoch: string;
   genres: string;
-  img: any;
+  simple_thumb: string;
   // epub: string;
   // mobi: string;
   // pdf: string;
