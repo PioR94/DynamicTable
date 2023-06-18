@@ -9,17 +9,13 @@ export const getAuthorsData = async (): Promise<Author[]> => {
 
     const authorsData = await Promise.all(
       response.data.map(async (author: Author) => {
-        const books: Book[] = await getBooksData(author.slug);
-
-        if (books.length > 0) {
-          return {
-            id: uuid(),
-            name: author.name,
-            url: author.url,
-            slug: author.slug,
-            books: books,
-          };
-        }
+        return {
+          id: uuid(),
+          name: author.name,
+          url: author.url,
+          slug: author.slug,
+          books: [],
+        };
       }),
     );
     const authorsFiltered = authorsData.filter((author) => author !== undefined);
@@ -32,7 +28,7 @@ export const getAuthorsData = async (): Promise<Author[]> => {
 export const getBooksData = async (slug: string): Promise<Book[]> => {
   try {
     const response = await axios.get(`https://wolnelektury.pl/api/authors/${slug}/books/`);
-    return response.data.map((book: any) => ({
+    return response.data.map((book: Book) => ({
       full_sort_key: book.full_sort_key,
       kind: book.kind,
       title: book.title,
@@ -41,11 +37,21 @@ export const getBooksData = async (slug: string): Promise<Book[]> => {
       epoch: book.epoch,
       genres: book.genres,
       simple_thumb: book.simple_thumb,
-      //  epub:
-      // mobi: string;
-      // pdf: string;
     }));
   } catch (error) {
     console.error(error);
+  }
+};
+
+export const getFormats = async (href: string): Promise<String> => {
+  try {
+    const response = await axios.get(`https://wolnelektury.pl/api/books/${href}/`);
+    const format = response.data.map((book) => ({
+      pdf: book.pdf,
+      epub: book.epub,
+      mobi: book.mobi,
+    }));
+  } catch (error) {
+    return error;
   }
 };
