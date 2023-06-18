@@ -7,7 +7,5 @@ export interface Book {
   epoch: string;
   genres: string;
   simple_thumb: string;
-  // epub: string;
-  // mobi: string;
-  // pdf: string;
+  slug: string;
 }

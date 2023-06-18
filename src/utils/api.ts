@@ -37,20 +37,22 @@ export const getBooksData = async (slug: string): Promise<Book[]> => {
       epoch: book.epoch,
       genres: book.genres,
       simple_thumb: book.simple_thumb,
+      slug: book.slug,
     }));
   } catch (error) {
     console.error(error);
   }
 };
 
-export const getFormats = async (href: string): Promise<String> => {
+export const getFormatsData = async (slug: string): Promise<any> => {
   try {
-    const response = await axios.get(`https://wolnelektury.pl/api/books/${href}/`);
-    const format = response.data.map((book) => ({
-      pdf: book.pdf,
-      epub: book.epub,
-      mobi: book.mobi,
-    }));
+    const response = await axios.get(`https://wolnelektury.pl/api/books/${slug}/`);
+    const format = {
+      pdf: response.data.pdf,
+      epub: response.data.epub,
+      mobi: response.data.mobi,
+    };
+    return format;
   } catch (error) {
     return error;
   }

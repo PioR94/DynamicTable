@@ -1,5 +1,5 @@
 'use client';
-import { getAuthorsData, getBooksData } from '../../utils/api';
+import { getAuthorsData, getBooksData, getFormatsData } from '../../utils/api';
 import React, { useState, useEffect } from 'react';
 import {
   DataTable,
@@ -21,6 +21,11 @@ export const Table = () => {
   const [expandedRows, setExpandedRows] = useState<DataTableExpandedRows | DataTableValueArray | undefined>(undefined);
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
   const [lastExpandedRow, setLastExpandedRow] = useState<any>(undefined);
+  const [format, setFormat] = useState({
+    pdf: '',
+    epub: '',
+    mobi: '',
+  });
 
   useEffect(() => {
     const getAuthors = async () => {
@@ -33,6 +38,14 @@ export const Table = () => {
     };
     getAuthors();
   }, []);
+
+  useEffect(() => {
+    const newBreadcrumb = [];
+    if (lastExpandedRow) {
+      newBreadcrumb.push({ label: lastExpandedRow.name });
+    }
+    setMenuItems(newBreadcrumb);
+  }, [lastExpandedRow]);
 
   const imageBodyTemplate = (rowData: Book) => {
     return <img src={rowData.simple_thumb} alt={rowData.simple_thumb} width="64px" className="shadow-4" />;
@@ -53,12 +66,15 @@ export const Table = () => {
             onSelectionChange={(e: any) => {
               setMenuItems([{ label: e.value.author }, { label: e.value.title }]);
             }}
+            onRowClick={(e: any) => getFormat(e.data.slug)}
           >
             <Column field="title" header="Title" />
             <Column header="Image" body={imageBodyTemplate} />
             <Column field="kind" header="Kind" />
             <Column field="epoch" header="Epoch" />
-            <Column field="pdf" header="PDF" body={'amountBodyTemplate'} />
+            <Column field="pdf" header="PDF" body={<a className="pi pi-download " href={format.pdf} />} />
+            <Column field="epub" header="EPUB" body={<a className="pi pi-download " href={format.epub} />} />
+            <Column field="mobi" header="MOBI" body={<a className="pi pi-download " href={format.mobi} />} />
           </DataTable>
         ) : (
           <div>No books found for this author</div>
@@ -73,14 +89,6 @@ export const Table = () => {
       goHome();
     },
   };
-
-  useEffect(() => {
-    const newBreadcrumb = [];
-    if (lastExpandedRow) {
-      newBreadcrumb.push({ label: lastExpandedRow.name });
-    }
-    setMenuItems(newBreadcrumb);
-  }, [expandedRows, lastExpandedRow]);
 
   const header = (
     <div className="flex flex-wrap justify-content-end gap-2">
@@ -102,9 +110,17 @@ export const Table = () => {
   };
 
   const goHome = () => {
-    setExpandedRows([]);
-
+    setExpandedRows(undefined);
     setLastExpandedRow(undefined);
+  };
+
+  const getFormat = async (slug: string) => {
+    const dataFormat = await getFormatsData(slug);
+    setFormat({
+      pdf: dataFormat.pdf,
+      epub: dataFormat.epub,
+      mobi: dataFormat.mobi,
+    });
   };
 
   return (
@@ -112,7 +128,7 @@ export const Table = () => {
       <DataTable
         value={authors}
         expandedRows={expandedRows}
-        onRowToggle={(e: DataTableRowToggleEvent) => {
+        onRowToggle={(e: any) => {
           setExpandedRows(e.data);
         }}
         selectionMode="single"
@@ -128,7 +144,9 @@ export const Table = () => {
         rowsPerPageOptions={[5, 10, 25, 50]}
         onRowExpand={(e: DataTableRowEvent) => {
           onRowExpand(e);
-          console.log(e);
+        }}
+        onRowCollapse={(e: any) => {
+          setMenuItems([{ label: e.data.name }]);
         }}
         loading={!authors.length}
       >
