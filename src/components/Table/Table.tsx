@@ -55,6 +55,10 @@ export const Table = () => {
     return rowData.name!.length > 0;
   };
 
+  const download = (url: string) => {
+    window.open(url, '_blank', 'noopener noreferrer');
+  };
+
   const rowExpansionTemplate = (data: Author) => {
     return (
       <div className="p-3">
@@ -72,9 +76,9 @@ export const Table = () => {
             <Column header="Image" body={imageBodyTemplate} />
             <Column field="kind" header="Kind" />
             <Column field="epoch" header="Epoch" />
-            <Column field="pdf" header="PDF" body={<a className="pi pi-download " href={format.pdf} />} />
-            <Column field="epub" header="EPUB" body={<a className="pi pi-download " href={format.epub} />} />
-            <Column field="mobi" header="MOBI" body={<a className="pi pi-download " href={format.mobi} />} />
+            <Column field="pdf" header="PDF" /> <div className="pi pi-download " onClick={() => download(format.pdf)} /> <Column />
+            <Column field="epub" header="EPUB" /> <div className="pi pi-download " onClick={() => download(format.epub)} /> <Column />
+            <Column field="pdf" header="MOBI" /> <div className="pi pi-download " onClick={() => download(format.mobi)} /> <Column />
           </DataTable>
         ) : (
           <div>No books found for this author</div>
@@ -116,6 +120,7 @@ export const Table = () => {
 
   const getFormat = async (slug: string) => {
     const dataFormat = await getFormatsData(slug);
+
     setFormat({
       pdf: dataFormat.pdf,
       epub: dataFormat.epub,
