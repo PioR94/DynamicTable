@@ -1,6 +1,8 @@
 import axios from 'axios';
 import { Book } from '../types/book';
 import { Author } from '../types/author';
+import { Format } from '../types/format';
+
 const { v4: uuid } = require('uuid');
 
 export const getAuthorsData = async (): Promise<Author[]> => {
@@ -44,15 +46,14 @@ export const getBooksData = async (slug: string): Promise<Book[]> => {
   }
 };
 
-export const getFormatsData = async (slug: string): Promise<any> => {
+export const getFormatsData = async (slug: string): Promise<Format> => {
   try {
     const response = await axios.get(`https://wolnelektury.pl/api/books/${slug}/`);
-    const format = {
+    return {
       pdf: response.data.pdf,
       epub: response.data.epub,
       mobi: response.data.mobi,
     };
-    return format;
   } catch (error) {
     return error;
   }

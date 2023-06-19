@@ -7,13 +7,14 @@ import { Book } from '../../types/book';
 import { Author } from '../../types/author';
 import { BreadCrumb } from 'primereact/breadcrumb';
 import { MenuItem } from 'primereact/menuitem';
+import { Format } from '../../types/format';
 
 export const Table = () => {
   const [authors, setAuthors] = useState<Author[]>([]);
   const [expandedRows, setExpandedRows] = useState<DataTableExpandedRows | DataTableValueArray | undefined>(undefined);
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
   const [lastExpandedRow, setLastExpandedRow] = useState<any>(undefined);
-  const [format, setFormat] = useState({
+  const [format, setFormat] = useState<Format>({
     pdf: '',
     epub: '',
     mobi: '',
@@ -45,10 +46,6 @@ export const Table = () => {
 
   const allowExpansion = (rowData: Author) => {
     return rowData.name!.length > 0;
-  };
-
-  const download = (url: string) => {
-    window.open(url, '_blank', 'noopener noreferrer');
   };
 
   const rowExpansionTemplate = (data: Author) => {
@@ -105,12 +102,12 @@ export const Table = () => {
     }
   };
 
-  const goHome = () => {
+  const goHome = (): void => {
     setExpandedRows(undefined);
     setLastExpandedRow(undefined);
   };
 
-  const getFormat = async (slug: string) => {
+  const getFormat = async (slug: string): Promise<void> => {
     const dataFormat = await getFormatsData(slug);
 
     setFormat({
@@ -118,6 +115,10 @@ export const Table = () => {
       epub: dataFormat.epub,
       mobi: dataFormat.mobi,
     });
+  };
+
+  const download = (url: string): void => {
+    window.open(url, '_blank', 'noopener noreferrer');
   };
 
   return (
