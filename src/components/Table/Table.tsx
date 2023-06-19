@@ -5,12 +5,9 @@ import {
   DataTable,
   DataTableExpandedRows,
   DataTableRowEvent,
-  DataTableRowToggleEvent,
-  DataTableSelectionChangeEvent,
   DataTableValueArray,
 } from 'primereact/datatable';
 import { Column } from 'primereact/column';
-
 import { Book } from '../../types/book';
 import { Author } from '../../types/author';
 import { BreadCrumb } from 'primereact/breadcrumb';
@@ -76,9 +73,9 @@ export const Table = () => {
             <Column header="Image" body={imageBodyTemplate} />
             <Column field="kind" header="Kind" />
             <Column field="epoch" header="Epoch" />
-            <Column field="pdf" header="PDF" /> <div className="pi pi-download " onClick={() => download(format.pdf)} /> <Column />
-            <Column field="epub" header="EPUB" /> <div className="pi pi-download " onClick={() => download(format.epub)} /> <Column />
-            <Column field="pdf" header="MOBI" /> <div className="pi pi-download " onClick={() => download(format.mobi)} /> <Column />
+            <Column field="pdf" header="PDF" body={<div onDoubleClick={() => download(format.pdf)} className="pi pi-download" />} />
+            <Column field="epub" header="EPUB" body={<div className="pi pi-download " onDoubleClick={() => download(format.epub)} />} />
+            <Column field="pdf" header="MOBI" body={<div className="pi pi-download " onDoubleClick={() => download(format.mobi)} />} />
           </DataTable>
         ) : (
           <div>No books found for this author</div>
@@ -145,8 +142,8 @@ export const Table = () => {
         header={header}
         tableStyle={{ minWidth: '60rem' }}
         paginator
-        rows={5}
-        rowsPerPageOptions={[5, 10, 25, 50]}
+        rows={10}
+        rowsPerPageOptions={[10, 25, 50]}
         onRowExpand={(e: DataTableRowEvent) => {
           onRowExpand(e);
         }}
