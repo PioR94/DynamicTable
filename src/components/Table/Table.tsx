@@ -1,12 +1,7 @@
 'use client';
 import { getAuthorsData, getBooksData, getFormatsData } from '../../utils/api';
 import React, { useState, useEffect } from 'react';
-import {
-  DataTable,
-  DataTableExpandedRows,
-  DataTableRowEvent,
-  DataTableValueArray,
-} from 'primereact/datatable';
+import { DataTable, DataTableExpandedRows, DataTableRowEvent, DataTableValueArray } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Book } from '../../types/book';
 import { Author } from '../../types/author';
@@ -140,7 +135,7 @@ export const Table = () => {
         rowExpansionTemplate={rowExpansionTemplate}
         dataKey="id"
         header={header}
-        tableStyle={{ minWidth: '60rem' }}
+        tableStyle={{ minWidth: '40rem' }}
         paginator
         rows={10}
         rowsPerPageOptions={[10, 25, 50]}
