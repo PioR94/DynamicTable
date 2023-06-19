@@ -1,12 +1,19 @@
 'use client';
 import { getAuthorsData, getBooksData, getFormatsData } from '../../utils/api';
-import React, { useState, useEffect } from 'react';
-import { DataTable, DataTableExpandedRows, DataTableRowEvent, DataTableValueArray } from 'primereact/datatable';
+import React, { useState, useEffect} from 'react';
+import {
+  DataTable,
+  DataTableExpandedRows,
+  DataTableRowClickEvent,
+  DataTableRowEvent,
+  DataTableSelectionChangeEvent,
+  DataTableValueArray,
+} from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Book } from '../../types/book';
 import { Author } from '../../types/author';
 import { BreadCrumb } from 'primereact/breadcrumb';
-import { MenuItem } from 'primereact/menuitem';
+import { MenuItem} from 'primereact/menuitem';
 import { Format } from '../../types/format';
 
 export const Table = () => {
@@ -20,13 +27,14 @@ export const Table = () => {
     mobi: '',
   });
 
+
   useEffect(() => {
     const getAuthors = async () => {
       try {
         const authorsData = await getAuthorsData();
         setAuthors(authorsData);
       } catch (error) {
-        console.log(error);
+        console.error(error);
       }
     };
     getAuthors();
@@ -56,16 +64,20 @@ export const Table = () => {
           <DataTable
             value={data.books}
             selectionMode="single"
-            onSelectionChange={(e: any) => {
-              setMenuItems([{ label: e.value.author }, { label: e.value.title }]);
+            onSelectionChange={(e: DataTableSelectionChangeEvent<Book>) => {
+              const value = e.value as Book;
+              setMenuItems([{ label: value.author }, { label: value.title }]);
             }}
-            onRowClick={(e: any) => getFormat(e.data.slug)}
+            onRowClick={(e: DataTableRowClickEvent) => {
+              const data = e.data as Book;
+              getFormat(data.slug);
+            }}
           >
             <Column field="title" header="Title" />
             <Column header="Image" body={imageBodyTemplate} />
             <Column field="kind" header="Kind" />
             <Column field="epoch" header="Epoch" />
-            <Column field="pdf" header="PDF" body={<div onDoubleClick={() => download(format.pdf)} className="pi pi-download" />} />
+            <Column field="pdf" header="PDF" body={<div className="pi pi-download" onDoubleClick={() => download(format.pdf)}  />} />
             <Column field="epub" header="EPUB" body={<div className="pi pi-download " onDoubleClick={() => download(format.epub)} />} />
             <Column field="pdf" header="MOBI" body={<div className="pi pi-download " onDoubleClick={() => download(format.mobi)} />} />
           </DataTable>
@@ -78,7 +90,7 @@ export const Table = () => {
 
   const home: MenuItem = {
     icon: 'pi pi-home',
-    command: (e) => {
+    command: () => {
       goHome();
     },
   };
@@ -89,7 +101,7 @@ export const Table = () => {
     </div>
   );
 
-  const onRowExpand = async (e: any) => {
+  const onRowExpand = async (e): Promise<void> => {
     setLastExpandedRow(e.data);
     try {
       const _authors = [...authors];
@@ -98,59 +110,72 @@ export const Table = () => {
       authorToChange.books = data;
       setAuthors(_authors);
     } catch (error) {
-      return error;
+     console.error(error);
     }
   };
 
   const goHome = (): void => {
     setExpandedRows(undefined);
     setLastExpandedRow(undefined);
+    setMenuItems([]);
   };
 
   const getFormat = async (slug: string): Promise<void> => {
-    const dataFormat = await getFormatsData(slug);
-
-    setFormat({
-      pdf: dataFormat.pdf,
-      epub: dataFormat.epub,
-      mobi: dataFormat.mobi,
-    });
+    try {
+      const dataFormat = await getFormatsData(slug);
+      setFormat({
+        pdf: dataFormat.pdf,
+        epub: dataFormat.epub,
+        mobi: dataFormat.mobi,
+      });
+    } catch (error) {
+      console.error(error);
+    }
   };
 
-  const download = (url: string): void => {
-    window.open(url, '_blank', 'noopener noreferrer');
+  const download = (url: string) => {
+    try {
+      setTimeout(() => {
+        window.open(url, '_blank', 'noopener noreferrer');
+      }, 500);
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   return (
-    <div className="card">
-      <DataTable
-        value={authors}
-        expandedRows={expandedRows}
-        onRowToggle={(e: any) => {
-          setExpandedRows(e.data);
-        }}
-        selectionMode="single"
-        onSelectionChange={(e: any) => {
-          setMenuItems([{ label: e.value.name }]);
-        }}
-        rowExpansionTemplate={rowExpansionTemplate}
-        dataKey="id"
-        header={header}
-        tableStyle={{ minWidth: '40rem' }}
-        paginator
-        rows={10}
-        rowsPerPageOptions={[10, 25, 50]}
-        onRowExpand={(e: DataTableRowEvent) => {
-          onRowExpand(e);
-        }}
-        onRowCollapse={(e: any) => {
-          setMenuItems([{ label: e.data.name }]);
-        }}
-        loading={!authors.length}
-      >
-        <Column expander={allowExpansion} style={{ width: '5rem' }} />
-        <Column field="name" header="Author" sortable />
-      </DataTable>
-    </div>
+    <>
+      <div className="card">
+        <DataTable
+          value={authors}
+          expandedRows={expandedRows}
+          onRowToggle={(e: any) => {
+            setExpandedRows(e.data);
+          }}
+          selectionMode="single"
+          onSelectionChange={(e: DataTableSelectionChangeEvent<Author>) => {
+            const value = e.value as Author;
+            setMenuItems([{ label: value.name }]);
+          }}
+          rowExpansionTemplate={rowExpansionTemplate}
+          dataKey="id"
+          header={header}
+          paginator
+          rows={10}
+          rowsPerPageOptions={[10, 25, 50]}
+          onRowExpand={(e: DataTableRowEvent) => {
+            onRowExpand(e);
+          }}
+          onRowCollapse={(e: DataTableRowEvent) => {
+            const data = e.data as Author;
+            setMenuItems([{ label: data.name }]);
+          }}
+          loading={!authors.length}
+        >
+          <Column expander={allowExpansion} style={{ width: '5rem' }} />
+          <Column field="name" header="Author" sortable />
+          </DataTable>}
+      </div>
+    </>
   );
 };
