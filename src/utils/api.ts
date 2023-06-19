@@ -2,12 +2,13 @@ import axios from 'axios';
 import { Book } from '../types/book';
 import { Author } from '../types/author';
 import { Format } from '../types/format';
+import { BASE_URL } from './constants';
 
 const { v4: uuid } = require('uuid');
 
 export const getAuthorsData = async (): Promise<Author[]> => {
   try {
-    const response = await axios.get('https://wolnelektury.pl/api/authors/');
+    const response = await axios.get(`${BASE_URL}/authors/`);
 
     const authorsData = await Promise.all(
       response.data.map(async (author: Author) => {
@@ -20,8 +21,7 @@ export const getAuthorsData = async (): Promise<Author[]> => {
         };
       }),
     );
-    const authorsFiltered = authorsData.filter((author) => author !== undefined);
-    return authorsFiltered;
+    return authorsData.filter((author) => author !== undefined);
   } catch (error) {
     console.log(error);
   }
@@ -29,7 +29,7 @@ export const getAuthorsData = async (): Promise<Author[]> => {
 
 export const getBooksData = async (slug: string): Promise<Book[]> => {
   try {
-    const response = await axios.get(`https://wolnelektury.pl/api/authors/${slug}/books/`);
+    const response = await axios.get(`${BASE_URL}/authors/${slug}/books/`);
     return response.data.map((book: Book) => ({
       full_sort_key: book.full_sort_key,
       kind: book.kind,
@@ -48,13 +48,13 @@ export const getBooksData = async (slug: string): Promise<Book[]> => {
 
 export const getFormatsData = async (slug: string): Promise<Format> => {
   try {
-    const response = await axios.get(`https://wolnelektury.pl/api/books/${slug}/`);
+    const response = await axios.get(`${BASE_URL}/books/${slug}/`);
     return {
       pdf: response.data.pdf,
       epub: response.data.epub,
       mobi: response.data.mobi,
     };
   } catch (error) {
-    return error;
+    console.error(error);
   }
 };
