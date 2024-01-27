@@ -6,7 +6,7 @@ import { BASE_URL } from './constants';
 
 const { v4: uuid } = require('uuid');
 
-export const getAuthorsData = async (): Promise<Author[]> => {
+export const getAuthorsData = async (): Promise<Author[] | undefined> => {
   try {
     const response = await axios.get(`${BASE_URL}/authors/`);
 
@@ -27,7 +27,7 @@ export const getAuthorsData = async (): Promise<Author[]> => {
   }
 };
 
-export const getBooksData = async (slug: string): Promise<Book[]> => {
+export const getBooksData = async (slug: string): Promise<Book[] | undefined> => {
   try {
     const response = await axios.get(`${BASE_URL}/authors/${slug}/books/`);
     return response.data.map((book: Book) => ({
@@ -46,7 +46,7 @@ export const getBooksData = async (slug: string): Promise<Book[]> => {
   }
 };
 
-export const getFormatsData = async (slug: string): Promise<Format> => {
+export const getFormatsData = async (slug: string): Promise<Format | undefined> => {
   try {
     const response = await axios.get(`${BASE_URL}/books/${slug}/`);
     return {

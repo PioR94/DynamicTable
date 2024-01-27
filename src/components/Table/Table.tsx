@@ -1,6 +1,6 @@
 'use client';
 import { getAuthorsData, getBooksData, getFormatsData } from '../../utils/api';
-import React, { useState, useEffect} from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   DataTable,
   DataTableExpandedRows,
@@ -13,7 +13,7 @@ import { Column } from 'primereact/column';
 import { Book } from '../../types/book';
 import { Author } from '../../types/author';
 import { BreadCrumb } from 'primereact/breadcrumb';
-import { MenuItem} from 'primereact/menuitem';
+import { MenuItem } from 'primereact/menuitem';
 import { Format } from '../../types/format';
 
 export const Table = () => {
@@ -27,12 +27,15 @@ export const Table = () => {
     mobi: '',
   });
 
-
   useEffect(() => {
     const getAuthors = async () => {
       try {
         const authorsData = await getAuthorsData();
-        setAuthors(authorsData);
+        if (authorsData) {
+          setAuthors(authorsData);
+        } else {
+          console.error('Brak danych autorów.');
+        }
       } catch (error) {
         console.error(error);
       }
@@ -64,7 +67,7 @@ export const Table = () => {
           <DataTable
             value={data.books}
             selectionMode="single"
-            onSelectionChange={(e: DataTableSelectionChangeEvent<Book>) => {
+            onSelectionChange={(e: DataTableSelectionChangeEvent<Book[]>) => {
               const value = e.value as Book;
               setMenuItems([{ label: value.author }, { label: value.title }]);
             }}
@@ -77,7 +80,7 @@ export const Table = () => {
             <Column header="Image" body={imageBodyTemplate} />
             <Column field="kind" header="Kind" />
             <Column field="epoch" header="Epoch" />
-            <Column field="pdf" header="PDF" body={<div className="pi pi-download" onDoubleClick={() => download(format.pdf)}  />} />
+            <Column field="pdf" header="PDF" body={<div className="pi pi-download" onDoubleClick={() => download(format.pdf)} />} />
             <Column field="epub" header="EPUB" body={<div className="pi pi-download " onDoubleClick={() => download(format.epub)} />} />
             <Column field="pdf" header="MOBI" body={<div className="pi pi-download " onDoubleClick={() => download(format.mobi)} />} />
           </DataTable>
@@ -101,16 +104,19 @@ export const Table = () => {
     </div>
   );
 
-  const onRowExpand = async (e): Promise<void> => {
+  const onRowExpand = async (e: DataTableRowEvent): Promise<void> => {
     setLastExpandedRow(e.data);
     try {
       const _authors = [...authors];
       const data = await getBooksData(e.data.slug);
-      const authorToChange = _authors.find((oneAuthor) => oneAuthor.id === e.data.id);
-      authorToChange.books = data;
-      setAuthors(_authors);
+      const authorToChange = _authors.find((author) => author.id === e.data.id);
+
+      if (authorToChange && data) {
+        authorToChange.books = data;
+        setAuthors(_authors);
+      }
     } catch (error) {
-     console.error(error);
+      console.error(error);
     }
   };
 
@@ -119,15 +125,18 @@ export const Table = () => {
     setLastExpandedRow(undefined);
     setMenuItems([]);
   };
-
   const getFormat = async (slug: string): Promise<void> => {
     try {
       const dataFormat = await getFormatsData(slug);
-      setFormat({
-        pdf: dataFormat.pdf,
-        epub: dataFormat.epub,
-        mobi: dataFormat.mobi,
-      });
+      if (dataFormat) {
+        setFormat({
+          pdf: dataFormat.pdf,
+          epub: dataFormat.epub,
+          mobi: dataFormat.mobi,
+        });
+      } else {
+        console.error('Brak danych formatu dla podanego sluga.');
+      }
     } catch (error) {
       console.error(error);
     }
@@ -153,7 +162,7 @@ export const Table = () => {
             setExpandedRows(e.data);
           }}
           selectionMode="single"
-          onSelectionChange={(e: DataTableSelectionChangeEvent<Author>) => {
+          onSelectionChange={(e: DataTableSelectionChangeEvent<Author[]>) => {
             const value = e.value as Author;
             setMenuItems([{ label: value.name }]);
           }}
@@ -174,7 +183,7 @@ export const Table = () => {
         >
           <Column expander={allowExpansion} style={{ width: '5rem' }} />
           <Column field="name" header="Author" sortable />
-          </DataTable>}
+        </DataTable>
       </div>
     </>
   );
